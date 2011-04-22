@@ -7,7 +7,7 @@
   "content_scripts": [{
     "run_at":     "document_start",
     "matches":    ["http://*/*", "https://*/*"],
-    "js":         ["jquery.js", "dotjs.js"]
+    "js":         ["jquery.js", "dotjs.js", "whereami.js"]
   }],
   "permissions": [
     "tabs"

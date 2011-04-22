@@ -1,8 +1,10 @@
+require 'crxmake'
+
 desc "Install dotjs"
 task :install => 'install:all'
 
 namespace :install do
-  task :all => [ :prompt, :chrome, :daemon, :agent, :done ]
+  task :all => [ :prompt, :chrome, :agent, :daemon, :done ]
 
   task :prompt do
     puts "\e[1m\e[32mdotjs\e[0m"
@@ -54,6 +56,25 @@ namespace :install do
 
   desc "Install Google Chrome extension"
   task :chrome do
+    puts "Building Google Chrome extension..."
+    
+    CrxMake.make(
+      :ex_dir => "./ext",
+      # :pkey   => "./test.pem",
+      :crx_output => "./builds/dotjs.crx",
+      :verbose => true,
+      :ignorefile => /\.swp/,
+      :ignoredir => /\.(?:svn|git|cvs)/
+    )
+    
+    
+    # Dir.chdir("ext") do
+    #   files = Dir.glob("*.{js,json,png}")
+    #   Kernel.exec "rm ../builds/dotjs.crx"
+    #   cmd = "zip ../builds/dotjs.crx #{files.join(' ')}"
+    #   Kernel.exec cmd
+    # end
+
     puts "Installing Google Chrome extension..."
     sh "open -a 'Google Chrome' builds/dotjs.crx &"
   end
