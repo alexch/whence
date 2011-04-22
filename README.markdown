@@ -1,3 +1,14 @@
+# HACKED VERSION BY ALEX
+
+Once a second, it logs the currently active tab or window (if any) in Chrome into a file in your home directory.
+
+# Instructions
+gem install crxmake
+rake install:chrome
+tail -f ~/.js/wherewasi.txt
+
+Complaints to @alexch / alex@stinky.com
+
 ..................... dotjs ........................
 
 dotjs  is a  Google Chrome  extension  that executes
