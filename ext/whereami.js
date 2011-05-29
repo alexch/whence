@@ -1,4 +1,6 @@
-console.log("loading whereami")
+console.log("loading COUCH whereami")
+var db = $.couch.db('whereami');
+
 var whereami = {
   ticker: null,
   
@@ -9,9 +11,8 @@ var whereami = {
     if (this.ticker == null) {
       console.log("starting tracking " + this.host);
       this.ticker = setInterval(function() {
-        $.ajax({
-          url: 'http://localhost:3131/' + self.host,
-          dataType: 'text',
+        console.log("saving doc to couch");
+        db.saveDoc({host: self.host},           
           success: function() {
             // do nothing
           },
