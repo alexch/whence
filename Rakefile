@@ -1,24 +1,24 @@
 require 'crxmake'
 
-desc "Install dotjs"
+desc "Install whence"
 task :install => 'install:all'
 
 namespace :install do
   task :all => [ :prompt, :chrome, :agent, :daemon, :done ]
 
   task :prompt do
-    puts "\e[1m\e[32mdotjs\e[0m"
+    puts "\e[1m\e[32mwhence\e[0m"
     puts "\e[1m-----\e[0m"
     puts "I will install:", ""
-    puts "1. The 'dotjs' Google Chrome Extension"
+    puts "1. The 'whence' Google Chrome Extension"
     puts "2. djsd(1) in /usr/local/bin"
-    puts "3. com.github.dotjs in ~/Library/LaunchAgents",""
+    puts "3. com.github.whence in ~/Library/LaunchAgents",""
     print "Ok? (y/n) "
 
     begin
       until %w( k ok y yes n no ).include?(answer = $stdin.gets.chomp.downcase)
         puts "(psst... please type y or n)"
-        puts "Install dotjs? (y/n)"
+        puts "Install whence? (y/n)"
       end
     rescue Interrupt
       exit 1
@@ -29,17 +29,17 @@ namespace :install do
 
   task :done do
     if system("curl http://localhost:3131 &> /dev/null")
-      puts "\e[1m\e[32mdotjs installation worked\e[0m"
+      puts "\e[1m\e[32mwhence installation worked\e[0m"
       puts "drop files like google.com.js in ~/.js and enjoy hacking the web"
     else
-      puts "\e[31mdotjs installation failed\e[0m"
+      puts "\e[31mwhence installation failed\e[0m"
       puts "check console.app or open an issue"
     end
   end
 
   desc "Install launch agent"
   task :agent do
-    plist = "com.github.dotjs.plist"
+    plist = "com.github.whence.plist"
     agent = File.expand_path("~/Library/LaunchAgents/#{plist}")
     cp plist, agent, :verbose => true
     chmod 0644, agent
@@ -49,7 +49,7 @@ namespace :install do
     sleep 5
   end
 
-  desc "Install dotjs daemon"
+  desc "Install whence daemon"
   task :daemon do
     cp "bin/djsd", "/usr/local/bin", :verbose => true, :preserve => true
   end
@@ -60,8 +60,8 @@ namespace :install do
     
     CrxMake.make(
       :ex_dir => "./ext",
-      # :pkey   => "./test.pem",
-      :crx_output => "./builds/dotjs.crx",
+      :pkey   => "./ext.pem",
+      :crx_output => "./builds/whence.crx",
       :verbose => true,
       :ignorefile => /\.swp/,
       :ignoredir => /\.(?:svn|git|cvs)/
@@ -70,29 +70,29 @@ namespace :install do
     
     # Dir.chdir("ext") do
     #   files = Dir.glob("*.{js,json,png}")
-    #   Kernel.exec "rm ../builds/dotjs.crx"
-    #   cmd = "zip ../builds/dotjs.crx #{files.join(' ')}"
+    #   Kernel.exec "rm ../builds/whence.crx"
+    #   cmd = "zip ../builds/whence.crx #{files.join(' ')}"
     #   Kernel.exec cmd
     # end
 
     puts "Installing Google Chrome extension..."
-    sh "open -a 'Google Chrome' builds/dotjs.crx &"
+    sh "open -a 'Google Chrome' builds/whence.crx &"
   end
 end
 
-desc "Uninstall dotjs"
+desc "Uninstall whence"
 task :uninstall => 'uninstall:all'
 
 namespace :uninstall do
   task :all => [ :prompt, :daemon, :agent, :chrome, :done ]
 
   task :prompt do
-    puts "\e[1m\e[32mdotjs\e[0m"
+    puts "\e[1m\e[32mwhence\e[0m"
     puts "\e[1m-----\e[0m"
     puts "I will remove:", ""
     puts "1. djsd(1) from /usr/local/bin"
-    puts "2. com.github.dotjs from ~/Library/LaunchAgents"
-    puts "3. The 'dotjs' Google Chrome Extension",""
+    puts "2. com.github.whence from ~/Library/LaunchAgents"
+    puts "3. The 'whence' Google Chrome Extension",""
     puts "I will not remove:", ""
     puts "1. ~/.js", ""
     print "Ok? (y/n) "
@@ -100,7 +100,7 @@ namespace :uninstall do
     begin
       until %w( k ok y yes n no ).include?(answer = $stdin.gets.chomp.downcase)
         puts "(psst... please type y or n)"
-        puts "Uninstall dotjs? (y/n)"
+        puts "Uninstall whence? (y/n)"
       end
     rescue Interrupt
       exit 1
@@ -111,23 +111,23 @@ namespace :uninstall do
 
   task :done do
     if system("curl http://localhost:3131 &> /dev/null")
-      puts "\e[31mdotjs uninstall failed\e[0m"
+      puts "\e[31mwhence uninstall failed\e[0m"
       puts "djsd is still running"
     else
-      puts "\e[1m\e[32mdotjs uninstall worked\e[0m"
+      puts "\e[1m\e[32mwhence uninstall worked\e[0m"
       puts "your ~/.js was not touched"
     end
   end
 
   desc "Uninstall launch agent"
   task :agent do
-    plist = "com.github.dotjs.plist"
+    plist = "com.github.whence.plist"
     agent = File.expand_path("~/Library/LaunchAgents/#{plist}")
     sh "launchctl unload #{agent}"
     rm agent, :verbose => true
   end
 
-  desc "Uninstall dotjs daemon"
+  desc "Uninstall whence daemon"
   task :daemon do
     rm "/usr/local/bin/djsd", :verbose => true
   end
@@ -135,6 +135,6 @@ namespace :uninstall do
   desc "Uninstall Google Chrome extension"
   task :chrome do
     puts "\e[1mplease uninstall the google chrome extension manually:\e[0m"
-    puts "google chrome > window > extensions > dotjs > uninstall"
+    puts "google chrome > window > extensions > whence > uninstall"
   end
 end

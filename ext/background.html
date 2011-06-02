@@ -1,0 +1,90 @@
+<html>
+<head>
+  <script>
+  function say(msg) {
+    alert(msg)
+    console.log(msg)
+  }
+    
+  </script>
+  
+  <script src="jquery.js"></script>
+
+  <script>
+  var urlPrefix = 'http://localhost:5984/';
+  var dbName = 'whence';
+  
+  function couch(method, options) {
+    if (options == undefined) {
+      options = {};
+    }
+    var url = urlPrefix + dbName;
+    if (options.docId) {
+      url += "/" + options
+    }
+    var data = null;
+    if (options.data) {
+      data = options.data; // todo: dup
+      data.when = new Date();
+    }
+    $.ajax({
+      url: urlPrefix + dbName,
+      type: method.toUpperCase(),   // type = method
+      dataType: 'json',             // dataType = response
+      data: JSON.stringify(data),   // data = request   // use https://github.com/douglascrockford/JSON-js/blob/master/json2.js to get JSON in non-Chrome environments
+      contentType: "application/json",
+      success: function(response) {
+        if (options.onSuccess == undefined) {
+          console.log("Success during " + method + " " + urlPrefix + dbName)
+          console.log(response);
+        } else {
+          onSuccess(response);
+        }
+      },
+      error: function(e) {
+        if (options.onError == undefined) {
+          console.log("Error during " + method + " " + urlPrefix + dbName)
+          console.log(e);
+        }
+        else {
+          onError(e);
+        }
+      }
+    })
+  }
+  
+  // create the database if necessary
+  couch('put', {success: function(response) {
+    console.log("Created database " + dbName);
+    console.log(response);    
+  }, 
+  error:function(error) {
+    if (error.status == 412) {
+      console.log("Found database " + dbName);
+    } else {
+      console.log(e);
+    }
+  }});
+  
+  // log db info, for fun
+  couch('get');
+  
+  function onRequest(request, sender, callback) {
+    if (request.action == 'save') {
+      couch('post', {
+        data: request.data,
+        success: function(response) {
+          console.log("Success! from background");
+          console.log(response);
+          callback(response);
+        }
+      });
+    }
+  };
+
+  // Wire up the listener.
+  chrome.extension.onRequest.addListener(onRequest);
+    
+  </script>
+</head>
+</html>
