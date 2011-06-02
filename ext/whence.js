@@ -9,11 +9,10 @@ var whence = {
     if (this.ticker == null) {
       console.log("starting tracking " + this.host);      
       function tick() {
-        console.log("saving doc to couch");
         var blob = {host: self.host};
         
         chrome.extension.sendRequest({'action' : 'save', data: blob}, function(response) {
-          console.log(response);
+          // console.log(response);
           if (response == undefined) {
             // error
             console.log("Error on " + self.host + " saving " + blob);

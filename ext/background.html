@@ -2,7 +2,6 @@
 <head>
   <script>
   function say(msg) {
-    alert(msg)
     console.log(msg)
   }
     
@@ -34,20 +33,22 @@
       data: JSON.stringify(data),   // data = request   // use https://github.com/douglascrockford/JSON-js/blob/master/json2.js to get JSON in non-Chrome environments
       contentType: "application/json",
       success: function(response) {
-        if (options.onSuccess == undefined) {
+        if (options.success == undefined) {
           console.log("Success during " + method + " " + urlPrefix + dbName)
           console.log(response);
         } else {
-          onSuccess(response);
+          console.log("calling callback")
+          console.log(options.success)
+          options.success(response);
         }
       },
       error: function(e) {
-        if (options.onError == undefined) {
+        if (options.error == undefined) {
           console.log("Error during " + method + " " + urlPrefix + dbName)
           console.log(e);
         }
         else {
-          onError(e);
+          options.error(e);
         }
       }
     })
@@ -62,6 +63,7 @@
     if (error.status == 412) {
       console.log("Found database " + dbName);
     } else {
+      say(e.responseText);
       console.log(e);
     }
   }});
@@ -74,9 +76,13 @@
       couch('post', {
         data: request.data,
         success: function(response) {
-          console.log("Success! from background");
-          console.log(response);
           callback(response);
+        },
+        error: function(response) {
+          console.log("Error");
+          console.log(response);
+          callback();
+          // how to set error? jam it into chrome.extension.lastError?
         }
       });
     }
