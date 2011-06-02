@@ -25,9 +25,8 @@ Whence uses what's called a "sampling algorithm" -- approximately once a second,
 
 # TODO
 
-Rename github repo
 Include crxmake library 
-Included CouchDB executable
+Include CouchDB executable
 Write server in node.js
 Stick node.js *inside* CouchDB
   http://www.livelycouch.org/
