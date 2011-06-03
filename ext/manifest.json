@@ -5,15 +5,9 @@
   "icons": { "48": "icon48.png",
             "128": "icon128.png" },
   "background_page" : "background.html",            
-  "content_scripts": [{
-    "run_at":     "document_start",
-    "matches":    ["http://*/*", "https://*/*"],
-    "js":         ["jquery.js", "couch.js", "whence.js"]
-  }],
   "permissions": [
     "tabs",
     "http://localhost:*/*",
-    "http://localhost/*",
-    "http://*/*"
+    "http://localhost/*"
   ]
 }

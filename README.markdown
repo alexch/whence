@@ -42,18 +42,19 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
 # TODO
 
 * Better error if CouchDB is not running/installed
+  * use Chrome Desktop Notifications http://code.google.com/chrome/extensions/notifications.html
 * Smoosh successive hits to same host together
   *   possibly using map/reduce
 * Store path as well as host
 * Change icon
-  *   http://raphaeljs.com/icons/
 * Visualization
 * Replicate/synchronize DBs from multiple computers
 * Gather info on which app (other than browser) is active
 * Settings page
-* Clone RescueTime
+  *    http://code.google.com/chrome/extensions/options.html
 * Firefox version
 * Safari version
+* Clone RescueTime (Everything version - track active app, not just active tab)
 * Include crxmake library
 * Include CouchDB executable
 * Use IndexedDB for local storage (in case Couch is missing)  
@@ -61,7 +62,15 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
 * Stick server *inside* CouchDB
   *   see http://www.livelycouch.org/
 * Store tab.favIconUrl (tab is "sender" param of onRequest)
-
+* Limits (e.g. warn if you're on Slashdot too long)
+* Categories a la RescueTime
+* Detect idle time
+  * either stop recording, or record "time since activity" per sample
+* log per-page info e.g. GMail subject and from
+* Geolocation (possibly with GeoCouch)
+  *  https://github.com/couchbase/geocouch
+  
+  
 # Credits
 
 - Written by [Alex Chaffee](http://alexch.github.com)
