@@ -9,20 +9,21 @@ Complaints to [@alexch](http://twitter.com/alexch) / <mailto:alex@stinky.com>
 ## Install
 
 1. Install CouchDB e.g. http://info.couchbase.com/couchbaseCEdownload.html
-2. Open [builds/whence.crx](builds/whence.crx) in Google Chrome
+2. Select "Automatically Start At Login"
+3. Open [builds/whence.crx](builds/whence.crx) in Google Chrome
 
 ## Chromium vs Google Chrome
 
 Multiple Chromes installed? Drag [builds/whence.crx](builds/whence.crx) to whichever is your favorite.
-
-## Uninstall
-
-    rake uninstall
     
 ## Rebuild
 
     gem install crxmake
     rake install:chrome
+    
+## Debug
+
+From Chrome's "Extensions" window, select "Developer mode", scroll down to Whence, then click the "background.html" link to look at the console. You can also look at the console in any page.
 
 # Algorithm
 
