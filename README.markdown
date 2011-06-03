@@ -8,9 +8,13 @@ Complaints to [@alexch](http://twitter.com/alexch) / <mailto:alex@stinky.com>
 
 ## Install
 
-1. Install CouchDB e.g. http://info.couchbase.com/couchbaseCEdownload.html
-2. Select "Automatically Start At Login"
+1. Install [CouchBase](http://www.couchbase.com/downloads/couchbase-server/community)
+2. Select "Automatically Start At Login" from CouchBase menu ![CouchBase menu](automatically-start-couchbase.png)
 3. Open [builds/whence.crx](builds/whence.crx) in Google Chrome
+
+## Usage
+
+Open <http://localhost:5984/_utils/database.html?whence> and see your data aggregating
 
 ## Chromium vs Google Chrome
 
