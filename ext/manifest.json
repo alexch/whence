@@ -7,7 +7,6 @@
   "background_page" : "background.html",            
   "permissions": [
     "tabs",
-    "http://localhost:*/*",
     "http://localhost/*"
   ]
 }

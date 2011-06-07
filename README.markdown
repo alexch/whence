@@ -66,9 +66,13 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
 * Categories a la RescueTime
 * Detect idle time
   * either stop recording, or record "time since activity" per sample
+  * http://paulirish.com/2009/jquery-idletimer-plugin/
+  * http://stackoverflow.com/questions/667555/detecting-idle-time-in-javascript-elegantly
+  * http://www.frebsite.nl/werk/scripts/jquery_nap_plugin/index_en.php#voorbeelden
 * log per-page info e.g. GMail subject and from
 * Geolocation (possibly with GeoCouch)
   *  https://github.com/couchbase/geocouch
+* Store times in GMT?
   
   
 # Credits

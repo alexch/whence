@@ -138,3 +138,10 @@ namespace :uninstall do
     puts "google chrome > window > extensions > whence > uninstall"
   end
 end
+
+desc "Tail the Couchbase log"
+task :tail do
+  exec "tail -f /Applications/Couchbase\\ Server.app/Contents/Resources/couchdbx-core/var/log/couchdb/couch.log"
+end
+
+

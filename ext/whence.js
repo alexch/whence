@@ -15,14 +15,14 @@ function couch(method, options) {
     data.when = new Date();
   }
   $.ajax({
-    url: urlPrefix + dbName,
-    type: method.toUpperCase(),   // type = method
-    dataType: 'json',             // dataType = response
-    data: JSON.stringify(data),   // data = request   // use https://github.com/douglascrockford/JSON-js/blob/master/json2.js to get JSON in non-Chrome environments
-    contentType: "application/json",
+    url: url,
+    type: method.toUpperCase(),       // type = method
+    data: JSON.stringify(data),       // data = request   // use https://github.com/douglascrockford/JSON-js/blob/master/json2.js to get JSON in non-Chrome environments
+    dataType: 'json',                 // dataType = response
+    contentType: "application/json",  // contentType = response
     success: function(response) {
       if (options.success == undefined) {
-        console.log("Success during " + method + " " + urlPrefix + dbName)
+        console.log("Success during " + method + " " + url)
         console.log(response);
       } else {
         options.success(response);
@@ -30,7 +30,7 @@ function couch(method, options) {
     },
     error: function(e) {
       if (options.error == undefined) {
-        console.log("Error during " + method + " " + urlPrefix + dbName)
+        console.log("Error during " + method + " " + url)
         console.log(e);
       }
       else {
@@ -55,7 +55,51 @@ error:function(error) {
 }});
 
 // log db info, for fun
+console.log("db info:")
 couch('get');
+
+// create/update the design documents
+// Permanent views are stored inside special documents called design documents, and can be accessed via an HTTP GET request to the URI /{dbname}/{docid}/{viewname}, where {docid} has the prefix _design/ so that CouchDB recognizes the document as a design document, and {viewname} has the prefix _view/ so that CouchDB recognizes it as a view.
+
+var views = {
+  all: {
+    map: (function(doc) { emit(null, doc); }).toString()
+  },
+  by_when: {
+    map: (function(doc) { 
+      var secs = Date.parse(doc.when);
+      emit(secs, doc); 
+    }).toString()
+  }
+};
+
+console.log("getting view")
+couch('get', {
+  docId: '_design/sample',
+  success: function(response) {
+    console.log(response);
+    // todo: only put if it's different
+    console.log("setting view")
+    couch('put', {
+      docId: '_design/sample',
+      data: {
+        language: 'javascript',
+        _rev: response._rev,
+        views: views,
+      },
+      success: function(response) {
+        // get 'em all, for laffs
+        couch('get', {
+          docId: '_design/sample/_view/by_when'
+        })    
+      }
+    });
+  },
+});
+
+
+// 
+
 
 function parseUrl(url) {
   var parts = url.match(/(.*):\/\/([^\/]*)(\/.*)/);
