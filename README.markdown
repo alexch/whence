@@ -16,6 +16,8 @@ Complaints to [@alexch](http://twitter.com/alexch) / <mailto:alex@stinky.com>
 
 Open <http://localhost:5984/_utils/database.html?whence> and see your data aggregating
 
+ * http://localhost:5984/whence/_design/sample/_view/by_when
+
 ## Chromium vs Google Chrome
 
 Multiple Chromes installed? Drag [builds/whence.crx](builds/whence.crx) to whichever is your favorite.
@@ -45,17 +47,23 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
   * use Chrome Desktop Notifications http://code.google.com/chrome/extensions/notifications.html
 * Smoosh successive hits to same host together
   *   possibly using map/reduce
+* Detect idle time
+  * either stop recording, or record "time since activity" per sample
+  * http://paulirish.com/2009/jquery-idletimer-plugin/
+  * http://stackoverflow.com/questions/667555/detecting-idle-time-in-javascript-elegantly
+  * http://www.frebsite.nl/werk/scripts/jquery_nap_plugin/index_en.php#voorbeelden
 * Store path as well as host
 * Change icon
+* Include crxmake library
 * Visualization
 * Replicate/synchronize DBs from multiple computers
 * Gather info on which app (other than browser) is active
+* Integrate with MacLogger
 * Settings page
   *    http://code.google.com/chrome/extensions/options.html
-* Firefox version
-* Safari version
+* Firefox plugin
+* Safari plugin
 * Clone RescueTime (Everything version - track active app, not just active tab)
-* Include crxmake library
 * Include CouchDB executable
 * Use IndexedDB for local storage (in case Couch is missing)  
 * Write server in node.js
@@ -64,16 +72,15 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
 * Store tab.favIconUrl (tab is "sender" param of onRequest)
 * Limits (e.g. warn if you're on Slashdot too long)
 * Categories a la RescueTime
-* Detect idle time
-  * either stop recording, or record "time since activity" per sample
-  * http://paulirish.com/2009/jquery-idletimer-plugin/
-  * http://stackoverflow.com/questions/667555/detecting-idle-time-in-javascript-elegantly
-  * http://www.frebsite.nl/werk/scripts/jquery_nap_plugin/index_en.php#voorbeelden
-* log per-page info e.g. GMail subject and from
+* log per-page info e.g. GMail subject and from (with content scripts)
 * Geolocation (possibly with GeoCouch)
   *  https://github.com/couchbase/geocouch
 * Store times in GMT?
-  
+* Context menu item: add this path as a destination (gets tracked separately)
+  * http://code.google.com/chrome/extensions/contextMenus.html
+* Option: Respect incognito mode (don't track incognito tabs)
+  * http://code.google.com/chrome/extensions/overview.html#incognito
+* cache samples; flush cache every minute (to avoid annoying disk whir)
   
 # Credits
 

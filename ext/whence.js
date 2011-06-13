@@ -116,7 +116,9 @@ function parseUrl(url) {
   
 setInterval(function() {
   chrome.tabs.getSelected(null, function(tab) {
-    if (tab != undefined) {       // we have a selected tab
+    if (tab != undefined    // we have a selected tab
+       && !tab.incognito    // it's not in "don't track me" mode
+      ) {
       chrome.windows.get(tab.windowId, function(window) {
         if (window.focused) {     // we haven't lost focus
           host = parseUrl(tab.url).host;
@@ -130,4 +132,4 @@ setInterval(function() {
       });
     }
   });
-}, 1000)
+}, 10000)
