@@ -10,23 +10,30 @@ Complaints to [@alexch](http://twitter.com/alexch) / <mailto:alex@stinky.com>
 
 1. Install [CouchBase](http://www.couchbase.com/downloads/couchbase-server/community)
 2. Select "Automatically Start At Login" from CouchBase menu ![CouchBase menu](automatically-start-couchbase.png)
-3. Open [builds/whence.crx](builds/whence.crx) in Google Chrome
+3. Open [builds/whence.crx](builds/whence.crx) in Google Chrome (double clicking might work here)
+4. Click "Continue" and "Install" and "X" and whatever other security theater hoops come up
+
+Does it work on Windows or Linux? I don't know yet! Please tell me your experiences.
 
 ## Usage
 
 Open <http://localhost:5984/_utils/database.html?whence> and see your data aggregating
 
- * http://localhost:5984/whence/_design/sample/_view/by_when
+ * http://localhost:5984/whence/_design/sample/_view/by_start
+
+TODO: UI :-)
 
 ## Chromium vs Google Chrome
 
 Multiple Chromes installed? Drag [builds/whence.crx](builds/whence.crx) to whichever is your favorite.
-    
+
+# Developers
+
 ## Rebuild
 
     gem install crxmake
     rake install:chrome
-    
+
 ## Debug
 
 From Chrome's "Extensions" window, select "Developer mode", scroll down to Whence, then click the "background.html" link to look at the console. You can also look at the console in any page.
@@ -45,43 +52,52 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
 
 * Better error if CouchDB is not running/installed
   * use Chrome Desktop Notifications http://code.google.com/chrome/extensions/notifications.html
-* Smoosh successive hits to same host together
-  *   possibly using map/reduce
 * Detect idle time
   * either stop recording, or record "time since activity" per sample
   * http://paulirish.com/2009/jquery-idletimer-plugin/
   * http://stackoverflow.com/questions/667555/detecting-idle-time-in-javascript-elegantly
   * http://www.frebsite.nl/werk/scripts/jquery_nap_plugin/index_en.php#voorbeelden
+* Reports (aka "a user interface of some sort")
+  * by day
+  * by date range
+  * by host
 * Store path as well as host
+* Store client hostname
+* "Destination" rules (potentially several destinations per host, based on path)
+  * need better name, but "location" implies geolocation, so...
+* Context menu item: add this path as a destination (gets tracked separately)
+  * http://code.google.com/chrome/extensions/contextMenus.html
+* Export to Locker Project
+  * http://gigaom.com/2011/02/04/the-locker-project-why-leave-data-tracking-to-others-do-it-yourself/
+  * https://github.com/LockerProject/Locker
 * Change icon
-* Include crxmake library
 * Visualization
 * Replicate/synchronize DBs from multiple computers
 * Gather info on which app (other than browser) is active
-* Integrate with MacLogger
 * Settings page
   *    http://code.google.com/chrome/extensions/options.html
+* Integrate with MacLogger
 * Firefox plugin
 * Safari plugin
 * Clone RescueTime (Everything version - track active app, not just active tab)
-* Include CouchDB executable
-* Use IndexedDB for local storage (in case Couch is missing)  
-* Write server in node.js
-* Stick server *inside* CouchDB
-  *   see http://www.livelycouch.org/
 * Store tab.favIconUrl (tab is "sender" param of onRequest)
 * Limits (e.g. warn if you're on Slashdot too long)
 * Categories a la RescueTime
 * log per-page info e.g. GMail subject and from (with content scripts)
 * Geolocation (possibly with GeoCouch)
   *  https://github.com/couchbase/geocouch
-* Store times in GMT?
-* Context menu item: add this path as a destination (gets tracked separately)
-  * http://code.google.com/chrome/extensions/contextMenus.html
 * Option: Respect incognito mode (don't track incognito tabs)
   * http://code.google.com/chrome/extensions/overview.html#incognito
-* cache samples; flush cache every minute (to avoid annoying disk whir)
-  
+
+## Technical chores TODO
+
+* Compact DB on startup
+* Include CouchDB executable(s) in distro?
+* Use IndexedDB for local storage (in case Couch is missing)
+* Include crxmake library inside project
+* Stick server *inside* CouchDB?
+  *   see http://www.livelycouch.org/
+
 # Credits
 
 - Written by [Alex Chaffee](http://alexch.github.com)

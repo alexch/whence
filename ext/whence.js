@@ -147,30 +147,39 @@ function setupDesignDocs() {
   });
 }
 
+
 function migrateWhens() {
   couch('get', {
     docId: '_design/sample/_view/by_when',
     success: function(response) {
+      console.log("Migrating " + response.rows.length + " whens")
       var tick = null;
-      for (var i=0; i<response.rows.length; ++i) {
-        var doc = response.rows[i].value;
-        if (tick == null) {
-          tick = {host: doc.host, start: doc.when, end: doc.when};
-        } else {
-          if (doc.host == tick.host) {
-            tick.end = doc.when;
-          } else {
-            console.log(tick);
-            couch('post', {data: tick});
+      var rows = response.rows;
+      function migrateNextRow() {
+        row = rows.shift();
+        if (row) {
+          var doc = row.value;
+          if (tick == null) {
             tick = {host: doc.host, start: doc.when, end: doc.when};
+          } else {
+            if (doc.host == tick.host) {
+              tick.end = doc.when;
+            } else {
+              console.log("saving " + JSON.stringify(tick));
+              couch('post', {data: tick});
+              tick = {host: doc.host, start: doc.when, end: doc.when};
+            }
           }
+          couch('delete', {docId: doc['_id'], params: 'rev=' + doc['_rev']});
+          setTimeout(migrateNextRow, 0);
+        } else {
+          if (tick != null) {
+            console.log("saving " + JSON.stringify(tick));
+            couch('post', {data: tick});
+          }            
         }
-        couch('delete', {docId: doc['_id'], params: 'rev=' + doc['_rev']});
       }
-      if (tick != null) {
-        console.log(tick);
-        couch('post', {data: tick});
-      }
+      migrateNextRow();
     }
   })    
 }
@@ -203,31 +212,37 @@ function startTicker() {
         ) {
         chrome.windows.get(tab.windowId, function(window) {
           if (window.focused) {     // we haven't lost focus
-            var host = parseUrl(tab.url).host;
-            var now = new Date();
-            if (lastTick &&
-              lastTick.host == host &&
-              lastTick.end >= (now - period - slop)
-              ) {
+            if (tab.url == null || tab.url == '') {
+              console.log("Blank URL for tab:")
+              console.log(tab)
+            } else {
+              var host = parseUrl(tab.url).host;
+              var now = new Date();
+              if (lastTick &&
+                lastTick.host == host &&
+                lastTick.end >= (now - period - slop))
+              {
                 lastTick.end = now;
                 couch('put', {
                   docId: lastTick['_id'],
                   data: lastTick,
                   success: function(response) {
+                    console.log("Logged " + lastTick.host + " " + (lastTick.end - lastTick.start)/1000 + " sec");                    
                     lastTick['_rev'] = response.rev;
                   }
                 });
-            } else {
-              var newTick = {host: host, start: now, end: now};
-              couch('post', {
-                data: newTick,
-                success: function(response) {
-                  console.log(response);
-                  lastTick = newTick;  // todo: dup
-                  lastTick['_id'] = response.id;
-                  lastTick['_rev'] = response.rev;
-                }
-              });
+              } else {
+                var newTick = {host: host, start: now, end: now};
+                couch('post', {
+                  data: newTick,
+                  success: function(response) {
+                    console.log("Logging " + newTick.host);
+                    lastTick = newTick;  // todo: dup
+                    lastTick['_id'] = response.id;
+                    lastTick['_rev'] = response.rev;
+                  }
+                });
+              }
             }
           }
         });
