@@ -9,28 +9,39 @@ function couch(method, options) {
   if (options.docId) {
     url += "/" + options.docId;
   }
-  var data = null;
+  if (options.params) {
+    url += "?" + options.params;  // todo: if params is a hash, convert to CGI string
+  }
+  var data;
   if (options.data) {
-    data = options.data; // todo: dup
-    data.when = new Date();
+    data = JSON.stringify(options.data);   // use https://github.com/douglascrockford/JSON-js/blob/master/json2.js to get the JSON object in non-Chrome environments
+  } else {
+    data = null;
   }
   $.ajax({
     url: url,
     type: method.toUpperCase(),       // type = method
-    data: JSON.stringify(data),       // data = request   // use https://github.com/douglascrockford/JSON-js/blob/master/json2.js to get JSON in non-Chrome environments
+    data: data,                       // data = request
     dataType: 'json',                 // dataType = response
     contentType: "application/json",  // contentType = response
     success: function(response) {
-      if (options.success == undefined) {
-        console.log("Success during " + method + " " + url)
-        console.log(response);
+      if (response.error) {
+        console.log("CouchDB error during " + method + " " + url + ": " + JSON.stringify(response));
+        if (options.error) {
+          options.error(response);
+        }        
       } else {
-        options.success(response);
-      }
+        if (options.success == undefined) {
+          console.log("HTTP Success during " + method + " " + url)
+          console.log(response);
+        } else {
+          options.success(response);
+        }
+      }     
     },
     error: function(e) {
       if (options.error == undefined) {
-        console.log("Error during " + method + " " + url)
+        console.log("HTTP Error during " + method + " " + url)
         console.log(e);
       }
       else {
@@ -40,66 +51,129 @@ function couch(method, options) {
   })
 }
 
-// create the database if necessary
-couch('put', {success: function(response) {
-  console.log("Created database " + dbName);
-  console.log(response);    
-}, 
-error:function(error) {
-  if (error.status == 412) {
-    console.log("Found database " + dbName);
-  } else {
-    say(e.responseText);
-    console.log(e);
-  }
-}});
+(function() {
+  var nextStep = logDatabaseInfo;
+  // create the database if necessary
+  couch('put', {
+    success: function(response) {
+      console.log("Created database " + dbName);
+      console.log(response);
+      nextStep();
+    }, 
+    error:function(error) {
+      if (error.status == 412) {
+        console.log("Found database " + dbName);
+        nextStep();
+      } else {
+        console.log(e.responseText);
+        console.log(e);
+      }
+    }
+  });
+})();
 
-// log db info, for fun
-console.log("db info:")
-couch('get');
-
-// create/update the design documents
-// Permanent views are stored inside special documents called design documents, and can be accessed via an HTTP GET request to the URI /{dbname}/{docid}/{viewname}, where {docid} has the prefix _design/ so that CouchDB recognizes the document as a design document, and {viewname} has the prefix _view/ so that CouchDB recognizes it as a view.
+function logDatabaseInfo() {
+  // log db info, for fun
+  couch('get', {success: function(response) {
+    console.log("database info:");
+    console.log(response);
+    setupDesignDocs();
+  }});
+}
 
 var views = {
   all: {
     map: (function(doc) { emit(null, doc); }).toString()
   },
-  by_when: {
+  by_start: {
     map: (function(doc) { 
-      var secs = Date.parse(doc.when);
-      emit(secs, doc); 
+      if (doc.start) {
+        var secs = Date.parse(doc.start);
+        emit(secs, doc);
+      }
+    }).toString()
+  },
+  by_when: {
+    map: (function(doc) {
+      if (doc.when) {
+        var secs = Date.parse(doc.when);
+        emit(secs, doc); 
+      }
     }).toString()
   }
 };
 
-console.log("getting view")
-couch('get', {
-  docId: '_design/sample',
-  success: function(response) {
-    console.log(response);
-    // todo: only put if it's different
-    console.log("setting view")
-    couch('put', {
-      docId: '_design/sample',
-      data: {
-        language: 'javascript',
-        _rev: response._rev,
-        views: views,
-      },
-      success: function(response) {
-        // get 'em all, for laffs
-        couch('get', {
-          docId: '_design/sample/_view/by_when'
-        })    
+// create/update the design documents
+// Permanent views are stored inside special documents called design documents, and can be accessed via an HTTP GET request to the URI /{dbname}/{docid}/{viewname}, where {docid} has the prefix _design/ so that CouchDB recognizes the document as a design document, and {viewname} has the prefix _view/ so that CouchDB recognizes it as a view.
+function setupDesignDocs() {
+  console.log("----- create/update the design documents")
+  var designDocId = '_design/sample';
+  couch('get', {
+    docId: designDocId,
+    error: function(error) {
+      if (error.code == 404) {
+        console.log("Creating design doc")
+        couch('put', {
+          docId: designDocId,
+          data: {
+            language: 'javascript',
+            views: views,
+          },
+          success: function(response) {
+            startTicker();
+          }
+        })
+      } else {
+        console.log(error);
+      }    
+    },  
+    success: function(response) {
+      // only re-put if it's different
+      if (JSON.stringify(views) != JSON.stringify(response.views)) {
+        console.log("Updating design doc")
+        couch('put', {
+          docId: designDocId,
+          data: {
+            language: 'javascript',
+            _rev: response._rev,
+            views: views,
+          },
+          success: function(response) {
+            startTicker();
+          }
+        });        
       }
-    });
-  },
-});
+    },
+  });
+}
 
-
-// 
-
+function migrateWhens() {
+  couch('get', {
+    docId: '_design/sample/_view/by_when',
+    success: function(response) {
+      var tick = null;
+      for (var i=0; i<response.rows.length; ++i) {
+        var doc = response.rows[i].value;
+        if (tick == null) {
+          tick = {host: doc.host, start: doc.when, end: doc.when};
+        } else {
+          if (doc.host == tick.host) {
+            tick.end = doc.when;
+          } else {
+            console.log(tick);
+            couch('post', {data: tick});
+            tick = {host: doc.host, start: doc.when, end: doc.when};
+          }
+        }
+        couch('delete', {docId: doc['_id'], params: 'rev=' + doc['_rev']});
+      }
+      if (tick != null) {
+        console.log(tick);
+        couch('post', {data: tick});
+      }
+    }
+  })    
+}
 
 function parseUrl(url) {
   var parts = url.match(/(.*):\/\/([^\/]*)(\/.*)/);
@@ -113,23 +187,54 @@ function parseUrl(url) {
     path: parts[3]
   }
 }
+
+function startTicker() {
+  migrateWhens();
+  console.log("---------- starting ticker")
   
-setInterval(function() {
-  chrome.tabs.getSelected(null, function(tab) {
-    if (tab != undefined    // we have a selected tab
-       && !tab.incognito    // it's not in "don't track me" mode
-      ) {
-      chrome.windows.get(tab.windowId, function(window) {
-        if (window.focused) {     // we haven't lost focus
-          host = parseUrl(tab.url).host;
-          couch('post', {
-            data: {host: host},
-            success: function() {
-              // silence is golden
+  var period = 1 * 1000; // msec between ticks
+  var lastTick = null;  
+  var slop = 1 * 1000;    // msec of lag to consider two ticks the same
+
+  setInterval(function() {
+    chrome.tabs.getSelected(null, function(tab) {
+      if (tab != undefined    // we have a selected tab
+         && !tab.incognito    // it's not in "don't track me" mode
+        ) {
+        chrome.windows.get(tab.windowId, function(window) {
+          if (window.focused) {     // we haven't lost focus
+            var host = parseUrl(tab.url).host;
+            var now = new Date();
+            if (lastTick &&
+              lastTick.host == host &&
+              lastTick.end >= (now - period - slop)
+              ) {
+                lastTick.end = now;
+                couch('put', {
+                  docId: lastTick['_id'],
+                  data: lastTick,
+                  success: function(response) {
+                    lastTick['_rev'] = response.rev;
+                  }
+                });
+            } else {
+              var newTick = {host: host, start: now, end: now};
+              couch('post', {
+                data: newTick,
+                success: function(response) {
+                  console.log(response);
+                  lastTick = newTick;  // todo: dup
+                  lastTick['_id'] = response.id;
+                  lastTick['_rev'] = response.rev;
+                }
+              });
             }
-          });
-        }
-      });
-    }
-  });
-}, 10000)
+          }
+        });
+      }
+    });
+  }, period);
+}
+
+setTimeout(startTicker, 1000);
+
