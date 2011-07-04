@@ -91,6 +91,7 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
 
 ## Technical chores TODO
 
+* UNIT TESTS (FFS)
 * Compact DB on startup
 * Include CouchDB executable(s) in distro?
 * Use IndexedDB for local storage (in case Couch is missing)
