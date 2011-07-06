@@ -88,6 +88,8 @@ We could gather all sorts of other events as well, like tab opens and closes. Bu
   *  https://github.com/couchbase/geocouch
 * Option: Respect incognito mode (don't track incognito tabs)
   * http://code.google.com/chrome/extensions/overview.html#incognito
+* Put it in the Chrome Store
+  * https://chrome.google.com/webstore
 
 ## Technical chores TODO
 
