@@ -65,8 +65,9 @@ function couch(method, options) {
         console.log("Found database " + dbName);
         nextStep();
       } else {
-        console.log(e.responseText);
-        console.log(e);
+	console.log("Can't create database " + dbName);
+        console.log(error.responseText);
+        console.log(error);
       }
     }
   });
@@ -111,7 +112,7 @@ function setupDesignDocs() {
   couch('get', {
     docId: designDocId,
     error: function(error) {
-      if (error.code == 404) {
+      if (error.status == 404) {
         console.log("Creating design doc")
         couch('put', {
           docId: designDocId,
@@ -128,6 +129,7 @@ function setupDesignDocs() {
       }    
     },  
     success: function(response) {
+      console.log(views);
       // only re-put if it's different
       if (JSON.stringify(views) != JSON.stringify(response.views)) {
         console.log("Updating design doc")
@@ -201,7 +203,7 @@ function startTicker() {
   migrateWhens();
   console.log("---------- starting ticker")
   
-  var period = 1 * 1000; // msec between ticks
+  var period = 10 * 1000; // msec between ticks
   var lastTick = null;  
   var slop = 1 * 1000;    // msec of lag to consider two ticks the same
 
